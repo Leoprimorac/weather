@@ -1,0 +1,9 @@
+{
+    "dependencies": {
+        "axios": "^0.18.1",
+        "dom-parser": "^0.1.6",
+        "parse":"^3.4.1",
+        "jsdom": "^19.0.0",
+        "moment":"^2.29.1"
+    }
+}
