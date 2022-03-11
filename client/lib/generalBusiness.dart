@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:weather_app/weatherData.dart';
 
 class GeneralBusiness {
-  List<WeatherData> dataList(List<WeatherData> weatherData, date) {
-    
+  List<WeatherData> dailyDataList(List<WeatherData> weatherData, date) {
     return weatherData.isEmpty
-          ? []
-          : weatherData.where((element) {
-              return element.date!.year == date.year &&
-                  element.date!.month == date.month &&
-                  element.date!.day == date.day;
-            }).toList();;
-  
-}
+        ? []
+        : weatherData.where((element) {
+            return element.date!.year == date.year &&
+                element.date!.month == date.month &&
+                element.date!.day == date.day;
+          }).toList();
+  }
+
+  List<WeatherData> monthlyDataList(List<WeatherData> weatherData, date) {
+    return weatherData.isEmpty
+        ? []
+        : weatherData.where((element) {
+            return element.date!.year == date.year &&
+                element.date!.month == date.month;
+          }).toList();
+  }
+
   Future<DateTime> selectDate(BuildContext context, DateTime date) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -26,6 +35,7 @@ class GeneralBusiness {
   }
 
   Future<List<WeatherData>> getData() async {
+    
     WidgetsFlutterBinding.ensureInitialized();
     final keyApplicationId = 'dw0s36y7mlb5mFqQ1Ifou3ykkuFpD9M2F2Cf6M3D';
     final keyClientKey = 'ngGsECaD3hC142Bs6BTw6NlQUuxfeaPDjY0vUgyM';
@@ -46,7 +56,7 @@ class GeneralBusiness {
       apiResponse.results?.forEach((element) {
         data.add(WeatherData.fromParse(element));
       });
-      
+
       return data;
     } else {
       return [];

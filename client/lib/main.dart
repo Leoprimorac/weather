@@ -6,10 +6,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:weather_app/dailyWeather.dart';
 import 'package:weather_app/generalBusiness.dart';
+import 'package:weather_app/monthlyWeather.dart';
 
 import 'package:weather_app/weatherData.dart';
 
@@ -47,7 +49,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Weather App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       home: const HomePage(title: 'Weather App'),
     );
@@ -98,7 +100,6 @@ class _HomePageState extends State<HomePage> {
 
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  
 
   void _onItemTapped(int index) {
     setState(() {
@@ -114,6 +115,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    //Intl.defaultLocale = 'hr';
+
     if (weatherData.isEmpty) {
       GeneralBusiness().getData().then((value) {
         setState(() {
@@ -121,18 +124,16 @@ class _HomePageState extends State<HomePage> {
         });
       });
     }
-      List<Widget> _widgetOptions = <Widget>[
-        weatherData.isEmpty ? CircularProgressIndicator():
-    DailyWeather(weatherdata: weatherData),
-    const Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
-    const Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
-  ];
+    List<Widget> _widgetOptions = <Widget>[
+      weatherData.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : DailyWeather(weatherdata: weatherData),
+      MonthlyWeather(weatherData: weatherData),
+      const Text(
+        'Index 2: School',
+        style: optionStyle,
+      ),
+    ];
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -159,7 +160,16 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Colors.green,
         onTap: _onItemTapped,
       ),
-      body: _widgetOptions.elementAt(_selectedIndex),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            weatherData = [];
+          });
+          List<WeatherData> response = await GeneralBusiness().getData();
+          setState(() {});
+        },
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
     );
   }
 }
